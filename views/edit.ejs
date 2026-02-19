@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PayrollPro — Edit Employee</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <nav>
+    <div class="navbar">
+      <a href="/" class="navbar-brand">
+        <div class="brand-icon">💼</div>
+        <span class="brand-name">Payroll<span>Pro</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">📊 Dashboard</a>
+        <a href="/add" class="nav-link">➕ Add Employee</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+    <div class="page-header" style="max-width:580px;margin-left:auto;margin-right:auto;">
+      <div class="page-header-left">
+        <h1>Edit Employee</h1>
+        <p>Update details for <strong style="color:var(--accent)"><%= employee.name %></strong></p>
+      </div>
+    </div>
+
+    <div class="form-page">
+
+      <% if (error) { %>
+        <div class="alert-error">⚠️ &nbsp;<strong><%= error %></strong></div>
+      <% } %>
+
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-icon form-icon-edit">✏️</div>
+          <div>
+            <h2>Update Record</h2>
+            <p>ID: <%= employee.id %></p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <form action="/edit/<%= employee.id %>" method="POST" novalidate>
+
+            <!-- Name -->
+            <div class="form-group">
+              <label for="name">Full Name <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input type="text" id="name" name="name" class="form-control"
+                  value="<%= employee.name %>" autocomplete="off" required />
+              </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+              <label for="gender">Gender <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">🧬</span>
+                <select id="gender" name="gender" class="form-control" required>
+                  <option value="" disabled>Select gender...</option>
+                  <option value="Male"   <%= employee.gender === 'Male'   ? 'selected' : '' %>>👨 Male</option>
+                  <option value="Female" <%= employee.gender === 'Female' ? 'selected' : '' %>>👩 Female</option>
+                  <option value="Other"  <%= employee.gender === 'Other'  ? 'selected' : '' %>>🧑 Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+              <label for="department">Department <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">🏢</span>
+                <input type="text" id="department" name="department" class="form-control"
+                  value="<%= employee.department %>" autocomplete="off" required />
+              </div>
+            </div>
+
+            <!-- Start Date -->
+            <div class="form-group">
+              <label for="startDate">Start Date <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">📅</span>
+                <input type="date" id="startDate" name="startDate" class="form-control"
+                  value="<%= employee.startDate || '' %>" required />
+              </div>
+            </div>
+
+            <!-- Salary -->
+            <div class="form-group">
+              <label for="salary">Basic Salary (₹ / month) <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">₹</span>
+                <input type="number" id="salary" name="salary" class="form-control"
+                  value="<%= employee.salary %>" min="0" step="100" required />
+              </div>
+
+              <div class="salary-preview visible" id="salaryPreview">
+                <div class="preview-chip chip-tax">
+                  <div class="chip-label">Tax (12%)</div>
+                  <div class="chip-value" id="taxPreview">
+                    ₹<%= Math.round(employee.salary * 0.12).toLocaleString('en-IN') %>
+                  </div>
+                </div>
+                <div class="preview-chip chip-net">
+                  <div class="chip-label">Net Salary</div>
+                  <div class="chip-value" id="netPreview">
+                    ₹<%= Math.round(employee.salary * 0.88).toLocaleString('en-IN') %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a href="/" class="btn-secondary">← Cancel</a>
+              <button type="submit" class="btn-primary">💾 &nbsp;Save Changes</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">PayrollPro &copy; <%= new Date().getFullYear() %> — Employee Payroll Management System</div>
+
+  <script>
+    const salaryInput = document.getElementById('salary');
+    const preview     = document.getElementById('salaryPreview');
+    const taxEl       = document.getElementById('taxPreview');
+    const netEl       = document.getElementById('netPreview');
+
+    function formatINR(n) {
+      return '₹' + Math.round(n).toLocaleString('en-IN');
+    }
+
+    salaryInput.addEventListener('input', function () {
+      const val = parseFloat(this.value);
+      if (!isNaN(val) && val >= 0) {
+        taxEl.textContent = formatINR(val * 0.12);
+        netEl.textContent = formatINR(val * 0.88);
+        preview.classList.add('visible');
+      } else {
+        preview.classList.remove('visible');
+      }
+    });
+  </script>
+
+</body>
+</html>

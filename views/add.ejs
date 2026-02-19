@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PayrollPro — Add Employee</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <nav>
+    <div class="navbar">
+      <a href="/" class="navbar-brand">
+        <div class="brand-icon">💼</div>
+        <span class="brand-name">Payroll<span>Pro</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">📊 Dashboard</a>
+        <a href="/add" class="nav-link active">➕ Add Employee</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+    <div class="page-header" style="max-width:580px;margin-left:auto;margin-right:auto;">
+      <div class="page-header-left">
+        <h1>New Employee</h1>
+        <p>Fill in the details to register a new team member</p>
+      </div>
+    </div>
+
+    <div class="form-page">
+
+      <% if (error) { %>
+        <div class="alert-error">⚠️ &nbsp;<strong><%= error %></strong></div>
+      <% } %>
+
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-icon form-icon-add">👤</div>
+          <div>
+            <h2>Employee Registration</h2>
+            <p>All fields are required</p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <form action="/add" method="POST" novalidate>
+
+            <!-- Name -->
+            <div class="form-group">
+              <label for="name">Full Name <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input type="text" id="name" name="name" class="form-control"
+                  placeholder="e.g. Rahul Sharma" autocomplete="off" required />
+              </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+              <label for="gender">Gender <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">🧬</span>
+                <select id="gender" name="gender" class="form-control" required>
+                  <option value="" disabled selected>Select gender...</option>
+                  <option value="Male">👨 Male</option>
+                  <option value="Female">👩 Female</option>
+                  <option value="Other">🧑 Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+              <label for="department">Department <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">🏢</span>
+                <input type="text" id="department" name="department" class="form-control"
+                  placeholder="e.g. Engineering, Marketing..." autocomplete="off" required />
+              </div>
+            </div>
+
+            <!-- Start Date -->
+            <div class="form-group">
+              <label for="startDate">Start Date <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">📅</span>
+                <input type="date" id="startDate" name="startDate" class="form-control" required />
+              </div>
+            </div>
+
+            <!-- Basic Salary -->
+            <div class="form-group">
+              <label for="salary">Basic Salary (₹ / month) <span>*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">₹</span>
+                <input type="number" id="salary" name="salary" class="form-control"
+                  placeholder="e.g. 75000" min="0" step="100" required />
+              </div>
+
+              <div class="salary-preview" id="salaryPreview">
+                <div class="preview-chip chip-tax">
+                  <div class="chip-label">Tax (12%)</div>
+                  <div class="chip-value" id="taxPreview">—</div>
+                </div>
+                <div class="preview-chip chip-net">
+                  <div class="chip-label">Net Salary</div>
+                  <div class="chip-value" id="netPreview">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a href="/" class="btn-secondary">← Back</a>
+              <button type="submit" class="btn-primary">✓ &nbsp;Register Employee</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">PayrollPro &copy; <%= new Date().getFullYear() %> — Employee Payroll Management System</div>
+
+  <script>
+    const salaryInput = document.getElementById('salary');
+    const preview     = document.getElementById('salaryPreview');
+    const taxEl       = document.getElementById('taxPreview');
+    const netEl       = document.getElementById('netPreview');
+
+    function formatINR(n) {
+      return '₹' + Math.round(n).toLocaleString('en-IN');
+    }
+
+    salaryInput.addEventListener('input', function () {
+      const val = parseFloat(this.value);
+      if (!isNaN(val) && val >= 0) {
+        taxEl.textContent = formatINR(val * 0.12);
+        netEl.textContent = formatINR(val * 0.88);
+        preview.classList.add('visible');
+      } else {
+        preview.classList.remove('visible');
+      }
+    });
+  </script>
+
+</body>
+</html>

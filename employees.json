@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1700000000002",
+    "name": "Priya Verma",
+    "department": "Marketing",
+    "gender": "Female",
+    "startDate": "2021-07-01",
+    "salary": 62000
+  },
+  {
+    "id": "1771394394104",
+    "name": "yuvraj singh",
+    "department": "engineer",
+    "gender": "Male",
+    "startDate": "2000-02-10",
+    "salary": 1000100
+  },
+  {
+    "id": "1771490751441",
+    "name": "sahil bansal",
+    "department": "it",
+    "gender": "Male",
+    "startDate": "2000-02-10",
+    "salary": 74900
+  }
+]

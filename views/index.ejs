@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PayrollPro — Dashboard</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <!-- ── Navbar ──────────────────────────────────────────────────────────── -->
+  <nav>
+    <div class="navbar">
+      <a href="/" class="navbar-brand">
+        <div class="brand-icon">💼</div>
+        <span class="brand-name">Payroll<span>Pro</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="/" class="nav-link active">📊 Dashboard</a>
+        <a href="/add" class="nav-link">➕ Add Employee</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+
+    <!-- ── Page Header ─────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Employee Dashboard</h1>
+        <p>Manage your team and monthly payroll overview</p>
+      </div>
+      <a href="/add" class="btn-add-employee">＋ &nbsp;Add Employee</a>
+    </div>
+
+    <%
+      const totalEmployees = employees.length;
+      const totalPayroll   = employees.reduce((s, e) => s + e.salary, 0);
+      const totalTax       = totalPayroll * 0.12;
+      const totalNet       = totalPayroll - totalTax;
+      const avgSalary      = totalEmployees > 0 ? Math.round(totalPayroll / totalEmployees) : 0;
+      const maleCount      = employees.filter(e => e.gender === 'Male').length;
+      const femaleCount    = employees.filter(e => e.gender === 'Female').length;
+      const otherCount     = employees.filter(e => e.gender === 'Other').length;
+
+      function formatINR(amount) {
+        return '₹' + Number(amount).toLocaleString('en-IN');
+      }
+    %>
+
+    <!-- ── Stats Row ───────────────────────────────────────────────────── -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Employees</div>
+        <div class="stat-value"><%= totalEmployees %></div>
+        <div class="stat-sub">
+          👨 <%= maleCount %> Male &nbsp;|&nbsp;
+          👩 <%= femaleCount %> Female
+          <% if (otherCount > 0) { %>&nbsp;|&nbsp; 🧑 <%= otherCount %> Other<% } %>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Basic Payroll</div>
+        <div class="stat-value"><%- formatINR(totalPayroll) %></div>
+        <div class="stat-sub">Gross salaries / month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Tax (12%)</div>
+        <div class="stat-value"><%- formatINR(Math.round(totalTax)) %></div>
+        <div class="stat-sub">Deductions this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Net Payout</div>
+        <div class="stat-value"><%- formatINR(Math.round(totalNet)) %></div>
+        <div class="stat-sub">After-tax disbursement</div>
+      </div>
+    </div>
+
+    <!-- ── Average Salary Banner ────────────────────────────────────────── -->
+    <% if (totalEmployees > 0) { %>
+    <div class="avg-banner">
+      <div class="avg-banner-left">
+        <div class="avg-icon">📈</div>
+        <div>
+          <div class="avg-label">Average Monthly Salary</div>
+          <div class="avg-sub">Across all <%= totalEmployees %> employee<%= totalEmployees > 1 ? 's' : '' %></div>
+        </div>
+      </div>
+      <div class="avg-right">
+        <div class="avg-value"><%- formatINR(avgSalary) %></div>
+        <div class="avg-breakdown">
+          Tax avg: <span class="tax-color"><%- formatINR(Math.round(avgSalary * 0.12)) %></span>
+          &nbsp;|&nbsp;
+          Net avg: <span class="net-color"><%- formatINR(Math.round(avgSalary * 0.88)) %></span>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- ── Table ────────────────────────────────────────────────────────── -->
+    <div class="table-container">
+      <div class="table-header">
+        <span class="table-title">All Employees</span>
+        <span class="badge badge-purple"><%= totalEmployees %> records</span>
+      </div>
+
+      <% if (employees.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">🗂️</div>
+          <h3>No employees found</h3>
+          <p>Add your first employee to get started.</p>
+        </div>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Employee</th>
+              <th>Gender</th>
+              <th>Department</th>
+              <th>Start Date</th>
+              <th>Basic Salary</th>
+              <th>Tax (12%)</th>
+              <th>Net Salary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%
+              const avatarClasses = ['av-1','av-2','av-3','av-4','av-5','av-6'];
+              const deptIcons = {
+                'Engineering':'⚙️','Marketing':'📣','Human Resources':'👥',
+                'Finance':'💰','Sales':'📈','Design':'🎨','Operations':'🔧','IT':'💻'
+              };
+              const genderIcon = { 'Male':'👨', 'Female':'👩', 'Other':'🧑' };
+            %>
+
+            <% employees.forEach(function(emp, i) { %>
+              <%
+                const tax      = emp.salary * 0.12;
+                const net      = emp.salary - tax;
+                const initials = emp.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+                const avClass  = avatarClasses[i % avatarClasses.length];
+                const deptIcon = deptIcons[emp.department] || '🏢';
+                const gIcon    = genderIcon[emp.gender] || '🧑';
+
+                // Format start date nicely
+                const sd = emp.startDate ? new Date(emp.startDate) : null;
+                const formattedDate = sd
+                  ? sd.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+                  : '—';
+              %>
+              <tr>
+                <td style="color:var(--text-muted);font-size:0.78rem;"><%= i + 1 %></td>
+
+                <td>
+                  <div class="emp-name">
+                    <div class="emp-avatar <%= avClass %>"><%= initials %></div>
+                    <div>
+                      <div class="emp-fullname"><%= emp.name %></div>
+                      <div class="emp-id">ID: <%= emp.id %></div>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="gender-pill gender-<%= (emp.gender || 'Other').toLowerCase() %>">
+                    <%= gIcon %> <%= emp.gender || '—' %>
+                  </span>
+                </td>
+
+                <td>
+                  <span class="dept-pill"><%= deptIcon %> <%= emp.department %></span>
+                </td>
+
+                <td>
+                  <span class="date-cell">📅 <%= formattedDate %></span>
+                </td>
+
+                <td class="salary-basic"><%- formatINR(emp.salary) %></td>
+                <td class="salary-tax">−<%- formatINR(Math.round(tax)) %></td>
+                <td class="salary-net"><%- formatINR(Math.round(net)) %></td>
+
+                <td>
+                  <div class="actions">
+                    <a href="/edit/<%= emp.id %>" class="btn-edit">✏️ Edit</a>
+                    <a href="/delete/<%= emp.id %>" class="btn-delete"
+                       onclick="return confirm('Delete <%= emp.name %>? This cannot be undone.')">
+                      🗑️ Delete
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+  </div>
+
+  <div class="footer">PayrollPro &copy; <%= new Date().getFullYear() %> — Employee Payroll Management System</div>
+
+</body>
+</html>
